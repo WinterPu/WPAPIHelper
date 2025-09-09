@@ -162,8 +162,8 @@ def main():
         print("HTTP 错误:", resp.status_code, resp.text)
         return
 
-    # 一键上传 images.png 到多维表格
-    file_path = "images.png"
+    # 一键上传 README.md 到多维表格
+    file_path = "README.md"
     # 修正 URL，应该是 medias (复数)
     upload_url = "https://open.feishu.cn/open-apis/drive/v1/medias/upload_all"
     
@@ -177,7 +177,7 @@ def main():
         # 修正 form-data 的字段名和值
         form_data = {
             'file_name': os.path.basename(file_path),
-            'parent_type': 'bitable_image',  # 修正为 bitable_image
+            'parent_type': 'bitable_file',  # 修正为 bitable_file
             'parent_node': app_id,
             'size': str(file_size)
         }
