@@ -16,7 +16,7 @@ APP_ID = os.getenv("FEISHU_APP_ID")
 APP_SECRET = os.getenv("FEISHU_APP_SECRET")
 
 # OAuth2 配置
-REDIRECT_URI = os.getenv("FEISHU_REDIRECT_URI")
+REDIRECT_URI = os.getenv("FEISHU_REDIRECT_URI", "http://localhost:8000/callback")
 if not REDIRECT_URI:
     raise ValueError("请在 .env 文件中配置 FEISHU_REDIRECT_URI，并确保与开放平台后台设置完全一致！")
 AUTH_URL = f"https://open.feishu.cn/open-apis/authen/v1/index?app_id={APP_ID}&redirect_uri={REDIRECT_URI}&state=state"
@@ -49,6 +49,7 @@ def exchange_code_for_token(code):
 
 
 # 自动本地回调服务获取 code
+## 授权之后Code 是在浏览器地址里面，通过这个本地服务获取
 def get_code_via_local_server():
     code_holder = {}
     class Handler(BaseHTTPRequestHandler):
@@ -87,6 +88,7 @@ def main():
         print("无法获取 user_access_token，流程终止。")
         return
     # 用 user_access_token 创建多维表格（Base）
+    ## 多维表格名称
     base_name = "HelloWorldBase"
     create_base_url = "https://open.feishu.cn/open-apis/bitable/v1/apps"
     headers = {
