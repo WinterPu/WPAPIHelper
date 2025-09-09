@@ -162,6 +162,41 @@ def main():
         print("HTTP 错误:", resp.status_code, resp.text)
         return
 
+    # 一键上传 images.png 到多维表格
+    file_path = "images.png"
+    # 修正 URL，应该是 medias (复数)
+    upload_url = "https://open.feishu.cn/open-apis/drive/v1/medias/upload_all"
+    
+    # 让 requests 自动处理 multipart/form-data 的 Content-Type 和 boundary
+    upload_headers = headers.copy()
+    if 'Content-Type' in upload_headers:
+        del upload_headers['Content-Type']
+
+    with open(file_path, "rb") as f:
+        file_size = os.path.getsize(file_path)
+        # 修正 form-data 的字段名和值
+        form_data = {
+            'file_name': os.path.basename(file_path),
+            'parent_type': 'bitable_image',  # 修正为 bitable_image
+            'parent_node': app_id,
+            'size': str(file_size)
+        }
+        files = {
+            'file': (os.path.basename(file_path), f, 'image/png') # 修正 key 为 file
+        }
+        resp = requests.post(upload_url, headers=upload_headers, data=form_data, files=files)
+    file_token = None
+    print("上传接口响应:", resp.status_code, resp.text)
+    if resp.status_code == 200:
+        data = resp.json()
+        if data.get("code") == 0:
+            file_token = data["data"].get("file_token")
+            print("附件上传成功，file_token:", file_token)
+        else:
+            print("附件上传失败:", data)
+    else:
+        print("附件上传 HTTP 错误:", resp.status_code, resp.text)
+
     # 插入数据（请将字段名替换为实际字段名）
     insert_url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{app_id}/tables/{table_id}/records"
     record_payload = {
@@ -169,7 +204,7 @@ def main():
             "文本": "测试Value",
             "单选": "测试Value2",
             "日期": 1757280000,
-            "附件": None
+            "附件": [{"file_token": file_token}] if file_token else None
         }
     }
     resp = requests.post(insert_url, headers=headers, json=record_payload)
