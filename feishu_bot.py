@@ -93,6 +93,19 @@ def upload_image(image_path):
     print(f"[LOG] 获取到 image_key: {image_key}")
     return image_key
 
+# 发送消息卡片到群机器人 webhook
+# card_content 示例: a dictionary for card
+# 参考: https://open.feishu.cn/document/ukTMukTMukTM/uAjNwUjLwYDM14CM2ATN
+
+def send_webhook_card(card_content):
+    url = FEISHU_WEBHOOK_URL
+    payload = {
+        "msg_type": "interactive",
+        "card": card_content
+    }
+    resp = requests.post(url, json=payload)
+    return resp.json()
+
 # 示例用法
 if __name__ == "__main__":
     print(send_webhook_text("Hello from Feishu Webhook!"))
@@ -106,3 +119,40 @@ if __name__ == "__main__":
     # 上传并发送图片
     image_key = upload_image("SampleImage.jpg")
     print(send_webhook_image(image_key))
+    # 示例：发送消息卡片
+    card_content = {
+        "config": {
+            "wide_screen_mode": True
+        },
+        "header": {
+            "title": {
+                "tag": "plain_text",
+                "content": "这是一个消息卡片"
+            },
+            "template": "blue"
+        },
+        "elements": [
+            {
+                "tag": "div",
+                "text": {
+                    "tag": "lark_md",
+                    "content": "卡片内容"
+                }
+            },
+            {
+                "tag": "action",
+                "actions": [
+                    {
+                        "tag": "button",
+                        "text": {
+                            "tag": "plain_text",
+                            "content": "了解更多"
+                        },
+                        "type": "primary",
+                        "url": "https://open.feishu.cn/document/ukTMukTMukTM/uAjNwUjLwYDM14CM2ATN"
+                    }
+                ]
+            }
+        ]
+    }
+    print(send_webhook_card(card_content))
