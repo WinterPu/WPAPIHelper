@@ -207,3 +207,9 @@ marimo/_lsp/
 __marimo__/
 
 .env
+
+
+
+/NotionApp/**/node_modules
+/NotionApp/**/package-lock.json
+/NotionApp/**/.env
